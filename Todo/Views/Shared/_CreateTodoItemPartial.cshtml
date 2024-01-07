@@ -1,0 +1,62 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Todo.Data
+@using Todo.Data.Entities
+@using Todo.Views.TodoItem
+@model Todo.Models.TodoItems.TodoItemCreateFields
+
+@inject ApplicationDbContext dbContext
+
+<div id="addItemModal" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Item</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <section>
+                        <div class="form-group">
+                            <label asp-for="Title"></label>
+                            <input asp-for="Title" class="form-control" />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+
+
+                        <div class="form-group">
+                            <label asp-for="Importance"></label>
+                            @Html.DropDownListFor(
+                                m => m.Importance,
+                                SelectListConvenience.ImportanceSelectListItems,
+                                new { @class = "form-control" }
+                                )
+                            <span asp-validation-for="Importance" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label asp-for="Rank"></label>
+                            <input asp-for="Rank" class="form-control" />
+                            <span asp-validation-for="Rank" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="ResponsiblePartyId">Assigned User</label>
+                            @Html.DropDownListFor(
+                                     m => m.ResponsiblePartyId,
+                                     dbContext.UserSelectListItems(),
+                                     new { @class = "form-control" }
+                                     )
+                            <span asp-validation-for="ResponsiblePartyId" class="text-danger"></span>
+                        </div>
+                    </section>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="addItem()">Add Item</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

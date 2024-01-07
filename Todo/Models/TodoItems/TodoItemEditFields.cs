@@ -1,4 +1,6 @@
 ﻿using Todo.Data.Entities;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Todo.Models.TodoItems
 {
@@ -11,10 +13,13 @@ namespace Todo.Models.TodoItems
         public bool IsDone { get; set; }
         public string ResponsiblePartyId { get; set; }
         public Importance Importance { get; set; }
+        
+        [Range(1, 100)]
+        public int Rank { get; set; }
 
         public TodoItemEditFields() { }
 
-        public TodoItemEditFields(int todoListId, string todoListTitle, int todoItemId, string title, bool isDone, string responsiblePartyId, Importance importance)
+        public TodoItemEditFields(int todoListId, string todoListTitle, int todoItemId, string title, bool isDone, string responsiblePartyId, Importance importance, int rank = 1)
         {
             TodoListId = todoListId;
             TodoListTitle = todoListTitle;
@@ -22,7 +27,8 @@ namespace Todo.Models.TodoItems
             Title = title;
             IsDone = isDone;
             ResponsiblePartyId = responsiblePartyId;
-            Importance = Importance.Medium;
+            Importance = importance;
+            Rank = rank;
         }
     }
 }

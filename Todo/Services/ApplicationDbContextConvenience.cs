@@ -11,11 +11,19 @@ namespace Todo.Services
         {
             return dbContext.TodoLists.Include(tl => tl.Owner)
                 .Include(tl => tl.Items)
-                .Where(tl => tl.Owner.Id == userId);
+                .Where(tl => tl.Owner.Id == userId || tl.Items.Any(x=>x.ResponsiblePartyId == userId));
         }
 
-        public static TodoList SingleTodoList(this ApplicationDbContext dbContext, int todoListId)
+        public static TodoList SingleTodoList(this ApplicationDbContext dbContext, int todoListId, bool hideDone = false)
         {
+            if (hideDone)
+            {
+                return dbContext.TodoLists.Include(tl => tl.Owner)
+                    .Include(tl => tl.Items.Where(x => x.IsDone != hideDone))
+                    .ThenInclude(ti => ti.ResponsibleParty)
+                    .Single(tl => tl.TodoListId == todoListId);
+            }
+
             return dbContext.TodoLists.Include(tl => tl.Owner)
                 .Include(tl => tl.Items)
                 .ThenInclude(ti => ti.ResponsibleParty)

@@ -1,5 +1,7 @@
 @using Microsoft.AspNetCore.Identity
 @using Todo.Services
+@using System.Net.Http
+@using Newtonsoft.Json.Linq
 
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
@@ -16,10 +18,38 @@
                         var iu = await UserManager.GetUserAsync(User);
                         var emailAddress = await UserManager.GetEmailAsync(iu);
                         var gravatarhash = Gravatar.GetHash(emailAddress);
+                        string url = $"https://en.gravatar.com/{gravatarhash}.json";
+                        var displayName = string.Empty;
+                        using (var client = new HttpClient())
+                        {
+                            client.Timeout = TimeSpan.FromSeconds(2);
+
+                            try
+                            {
+                                var response = await client.GetAsync(url);
+                                if (response.IsSuccessStatusCode)
+                                {
+                                    var content = await response.Content.ReadAsStringAsync();
+                                    var profileEntry = JObject.Parse(content)["entry"];
+                                    if (profileEntry.Any())
+                                    {
+                                        var userProfile = profileEntry[0];
+                                        var userName = userProfile["displayName"];
+                                        var email = userProfile["email"];
+                                        displayName = $"{userName} {email}";
+                                    }
+
+                                }
+                            }
+                            catch (HttpRequestException ex)
+                            {
+                                displayName = @UserManager.GetUserName(User);
+                            }
+
+                        }
                     }
 
-                    <img src="https://www.gravatar.com/avatar/@gravatarhash?s=30" />
-                    @UserManager.GetUserName(User)
+                    <img src="https://www.gravatar.com/avatar/@gravatarhash?s=30" /> @displayName
                 </a>
             </li>
             <li>

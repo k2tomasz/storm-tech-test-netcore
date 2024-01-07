@@ -1,10 +1,46 @@
 ﻿@using Todo.Controllers
 @using Todo.Data.Entities
+@using Todo.Models.TodoItems
 @using Todo.Services
+@using Todo.Views.TodoItem
 @model Todo.Models.TodoLists.TodoListDetailViewmodel
 
 @{
     ViewData["Title"] = $"List: {Model.Title}";
+}
+
+@await Html.PartialAsync("_CreateTodoItemPartial", new TodoItemCreateFields())
+
+
+@section Scripts {
+    <script>
+        // JavaScript for opening the modal
+        function openModal() {
+            $('#addItemModal').modal('show');
+        }
+
+        // JavaScript for adding an item
+        function addItem() {
+            var title = $('#Title').val();
+            // Add more variables for other input fields
+
+            $.ajax({
+                url: '/api/todoitems', // Replace with your API endpoint
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ title: title, /* other data */ }),
+                success: function (result) {
+                    // Handle success
+                    $('#addItemModal').modal('hide');
+                    // Optionally refresh the list or update the UI
+                },
+                error: function (error) {
+                    // Handle error
+                    console.error(error);
+                }
+            });
+        }
+    </script>
 }
 
 <h2>@ViewData["Title"]</h2>
@@ -14,12 +50,16 @@
     <ul class="list-group">
 
         <li class="list-group-item">
-            <a asp-action="Create" asp-controller="TodoItem" asp-route-todoListId="@Model.TodoListId">
-                <strong>Add New Item</strong>
+            <a asp-action="Detail" asp-controller="TodoList" asp-route-todoListId="@Model.TodoListId">
+                <strong>All Tasks</strong>
             </a>
+            <a asp-action="Detail" asp-controller="TodoList" asp-route-todoListId="@Model.TodoListId" asp-route-hideDone="true">
+                <strong>Undone Tasks</strong>
+            </a>
+            <button onclick="openModal();">Add New Item</button>
         </li>
 
-        @foreach (var item in Model.Items)
+        @foreach (var item in Model.Items.OrderBy(x=>x.Importance))
         {
             string contextualClass;
             switch (item.Importance)
@@ -39,28 +79,28 @@
                 
                 <div class="row">
 
-                <div class="col-md-8">
-                    <a asp-action="Edit" asp-controller="TodoItem" asp-route-todoItemId="@item.TodoItemId">
+                    <div class="col-md-8">
+                        <a asp-action="Edit" asp-controller="TodoItem" asp-route-todoItemId="@item.TodoItemId">
 
-                        @if (item.IsDone)
-                        {
-                            <s>@item.Title</s>
-                        }
-                        else
-                        {
-                            <text>@item.Title</text>
-                        }
-                    </a>
-                </div>
+                            @if (item.IsDone)
+                            {
+                                <s>@item.Title</s>
+                            }
+                            else
+                            {
+                                <text>@item.Title</text>
+                            }
+                        </a>
+                    </div>
 
-                <div class="col-md-4 text-right">
-                    <small>
-                        @item.ResponsibleParty.UserName
+                    <div class="col-md-4 text-right">
+                        <small>
+                            @item.ResponsibleParty.UserName
 
-                        <img src="https://www.gravatar.com/avatar/@Gravatar.GetHash(item.ResponsibleParty.Email)?s=30"/>
+                            <img src="https://www.gravatar.com/avatar/@Gravatar.GetHash(item.ResponsibleParty.Email)?s=30"/>
 
-                    </small>
-                </div>
+                        </small>
+                    </div>
                 </div>
 
             </li>

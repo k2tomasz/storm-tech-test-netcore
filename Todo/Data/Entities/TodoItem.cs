@@ -12,6 +12,9 @@ namespace Todo.Data.Entities {
 
         public int TodoListId { get; set; }
         public TodoList TodoList { get; set; }
+        
+        //migrations does not work for some reason so can't update db to add this column
+        //public int Rank { get; set; }
 
         protected TodoItem() { }
 
